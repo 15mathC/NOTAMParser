@@ -10,7 +10,6 @@
       <root url="jar://$PROJECT_DIR$/NOTAM Scraper/lib/commons-exec-1.3.jar!/" />
       <root url="jar://$PROJECT_DIR$/NOTAM Scraper/lib/client-combined-3.141.59-sources.jar!/" />
     </CLASSES>
-    <JAVADOC />
     <SOURCES />
   </library>
 </component>
