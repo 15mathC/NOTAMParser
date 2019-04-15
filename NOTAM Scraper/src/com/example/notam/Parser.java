@@ -389,17 +389,20 @@ public class Parser{
         }
     }
 
-    //We probably need to check all of the periods in the string to make sure one doesnt come before the latitude/longitude one.
+    //Parse out lat long by looking for periods with N/S close to it with numbers around it.
     public void parseLatLong(String s) {
 
         int num = s.indexOf(".");
+        boolean notfound = true;
 
-        if (num != -1) {
-            if(s.charAt(num + 3) == 'N' || s.charAt(num + 3) == 'S') {
+        while(num != -1 && notfound == true) {
+            if(s.charAt(num + 3) == 'N' || s.charAt(num + 3) == 'S' && Character.isDigit(s.charAt(num + 1)) && Character.isDigit(s.charAt(num - 1))) {
                 LatLong = s.substring(num - 6, num + 15);
                 s = s.substring(0, num - 7) + s.substring(num + 15, s.length());
                 remainder = s;
                 LatLong = LatLong.substring(0, 4) + LatLong.charAt(9) + " " + LatLong.substring(10, 14) + LatLong.charAt(20);
+            } else {
+                num = s.indexOf(".", num + 1);
             }
         }
     }
