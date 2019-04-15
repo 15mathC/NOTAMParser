@@ -127,7 +127,16 @@ public class Main {
         return resultlist;
     }
 
-
+    public static void display_Linked_list(LinkedList<String> linkedlist){
+        int num = 0;
+        while (linkedlist.size() > num) {
+            System.out.println(linkedlist.get(num));
+            System.out.print("======================================");
+            System.out.print("======================================");
+            System.out.println("");
+            num++;
+        }
+    }
 
     public static void main(String[] args) {
         Database_Connection myconnect =  new Database_Layout_Manager();
