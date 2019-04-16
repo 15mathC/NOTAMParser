@@ -181,7 +181,7 @@ public class Parser{
             remainder = s;
         } else {
             this.NotamCategory = "General";
-            this.airport = s.substring(air, air + 4);
+            this.airport = s.charAt(air) + s.substring(air + 1, air + 4);
             s = s.substring(air + 5, s.length());
             remainder = s;
         }
@@ -222,7 +222,7 @@ public class Parser{
         //Seeing if type is OBST
         int num = s.indexOf("OBST");
         if (num == -1) {
-            num = s.indexOf("RWY");
+            //num = s.indexOf("RWY");
         } else {
             s = s.replace(" OBST", "");
             type = "OBST";
@@ -230,18 +230,18 @@ public class Parser{
 
 
 
-        //Seeing if type is TWY
-        if (num == -1) {
-            num = s.indexOf("TWY");
-        } else if (type.equals("")) {
-            s = s.replace(" RWY", "");
-            if(s.contains("CLSD")) {
-                s = s.replace(" CLSD", "");
-                type = "RWY CLSD";
-            } else {
-                type = "RWY";
-            }
-        }
+//        //Seeing if type is TWY
+//        if (num == -1) {
+//            num = s.indexOf("TWY");
+//        } else if (type.equals("")) {
+//            s = s.replace(" RWY", "");
+//            if(s.contains("CLSD")) {
+//                s = s.replace(" CLSD", "");
+//                type = "RWY CLSD";
+//            } else {
+//                type = "RWY";
+//            }
+//        }
 
 
         //Seeing if the NOTAM type is Communications
@@ -315,19 +315,25 @@ public class Parser{
 
 
         remainder = s;
-        //if runway and taxiway, get next string
-        if (type.equals("RWY") || type.equals("TWY") || type.equals("RWY CLSD")) {
-            int digit = num;
-            //System.out.println(s1.charAt(digit));
-            while (!(s.charAt(digit) == ' ')) {
-                digit+=1;
-            }
+//        //if runway and taxiway, get next string
+//        if (type.equals("RWY") || type.equals("TWY") || type.equals("RWY CLSD")) {
+//            int digit = num;
+//            //System.out.println(s1.charAt(digit));
+//            while (!(s.charAt(digit) == ' ' && !(s.charAt(digit) == ','))) {
+//                digit+=1;
+//            }
+//
+//            runtax = s.substring(num, digit);
+//            //System.out.println(runtax);
+//            s = s.replace((" " + runtax), "");
+//            remainder = s;
+//        }
 
-            runtax = s.substring(num, digit);
-            //System.out.println(runtax);
-            s = s.replace((" " + runtax), "");
-            remainder = s;
-        }
+
+
+
+        //because runway and taxiways are hard, I am going to do it in another method.
+        parseRunwayTaxiway(s);
 
 
 
@@ -502,6 +508,61 @@ public class Parser{
 
     public void addEntry() {
         //Database_Layout_Manager.addEntry()
+    }
+
+    public void parseRunwayTaxiway(String s) {
+        int num = s.indexOf("RWY");
+        if(num != -1) {
+            if (this.type == "") {
+                this.type = "RWY";
+            } else {
+                this.type += " RWY";
+            }
+            if(s.contains("CLSD")) {
+                s.replace("CLSD ", "");
+            }
+        }
+        while (num != -1) {
+            int digit = num + 4;
+            while(s.charAt(digit) != ' ' && s.charAt(digit) != ',') {
+                digit += 1;
+            }
+            runtax += " " + s.substring(num + 4, digit);
+            s = s.replace(s.substring(num + 4, digit), "");
+            num = s.indexOf("RWY", num + 1);
+        }
+
+        num = s.indexOf("TWY");
+        if(num != -1) {
+            if(this.type == "") {
+                this.type = "TWY";
+            } else {
+                this.type += " TWY";
+            }
+            if(s.contains("CLSD")) {
+                s.replace("CLSD ", "");
+            }
+        }
+        while (num != -1) {
+            int digit = num + 4;
+            while(s.charAt(digit) != ' ' && s.charAt(digit) != ',') {
+                digit += 1;
+            }
+            runtax += " " + s.substring(num + 4, digit);
+            s = s.replace(s.substring(num + 4, digit), "");
+            num = s.indexOf("TWY", num + 1);
+        }
+
+        num = 0;
+        while (num < this.type.length() && this.type.charAt(num) == ' ' ) {
+            num++;
+        }
+        this.type = this.type.substring(num, this.type.length());
+
+        while (num < this.runtax.length() && this.runtax.charAt(num) == ' ' ) {
+            num++;
+        }
+        this.runtax = this.runtax.substring(num, this.runtax.length());
     }
 
 

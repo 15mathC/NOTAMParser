@@ -122,6 +122,7 @@ public class Main {
                 i++;
             }
         }catch(Exception e){
+            e.printStackTrace();
             brakes = true;
         }
         return resultlist;
@@ -146,7 +147,7 @@ public class Main {
 
 
         //Disconnect from Database
-        LinkedList<String> list = scraper_Chrome_dinsQueryWeb("KATL",1);
+        LinkedList<String> list = scraper_Chrome_dinsQueryWeb("KLAX",1);
         while(!list.isEmpty()) {
             try {
                 Parser p = new Parser(list.pop());
