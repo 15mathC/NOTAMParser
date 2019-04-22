@@ -174,8 +174,10 @@ public class Parser{
         if (s.substring(air + 1, air + 3).equals("FDC")) {
             if (s.contains("TEMPORARY FLIGHT RESTRICTION")) {
                 this.NotamCategory = "TFR";
+                this.airport = "TFR";
             } else {
                 this.NotamCategory = "FDC";
+                this.airport = "FDC";
             }
             s = s.substring(air + 4, s.length());
             remainder = s;
@@ -402,7 +404,7 @@ public class Parser{
         boolean notfound = true;
 
         while(num != -1 && notfound == true) {
-            if(s.charAt(num + 3) == 'N' || s.charAt(num + 3) == 'S' && Character.isDigit(s.charAt(num + 1)) && Character.isDigit(s.charAt(num - 1))) {
+            if(num + 3 < s.length() && (s.charAt(num + 3) == 'N' || s.charAt(num + 3) == 'S') && Character.isDigit(s.charAt(num + 1)) && Character.isDigit(s.charAt(num + 2)) && Character.isDigit(s.charAt(num - 2)) && Character.isDigit(s.charAt(num - 1))) {
                 LatLong = s.substring(num - 6, num + 15);
                 s = s.substring(0, num - 7) + s.substring(num + 15, s.length());
                 remainder = s;
@@ -418,28 +420,35 @@ public class Parser{
     public void parseAltitude(String s) {
 
         int num  = s.indexOf("FT");
-        if (num != -1) {
-            int digit = num;
-            while ((s.charAt(digit) != ' ') && digit > 0) {
+        while(num != -1) {
+            if (Character.isDigit(s.charAt(num - 1))) {
+                int digit = num;
+                while ((s.charAt(digit) != ' ') && digit > 0) {
 
-                digit--;
-                //System.out.println(digit);
-            }
-            digit++;
-
-            num += 2;
-            if (s.charAt(num + 1) == '(') {
-                //System.out.println(digit);
-
-                while (s.charAt(num) != ')' && num < s.length()) {
-                    num++;
+                    digit--;
+                    //System.out.println(digit);
                 }
-            }
+                digit++;
 
-            Altitude = s.substring(digit, num + 1);
-            s = s.replace(" " + Altitude, "");
-            remainder = s;
+                num += 2;
+                if (num + 1 < s.length() && s.charAt(num + 1) == '(') {
+                    //System.out.println(digit);
+
+                    while (num < s.length() && s.charAt(num) != ')') {
+                        num++;
+                    }
+                }
+
+                Altitude = s.substring(digit, num + 1);
+
+                s = s.replace(" " + Altitude, "");
+                Altitude = Altitude.replace('(', ' ');
+                Altitude = Altitude.replace(')', ' ');
+                remainder = s;
+            }
+            num = s.indexOf("FT", num + 1);
         }
+
     }
 
     // public void parseObsc(String s) {
@@ -510,6 +519,9 @@ public class Parser{
         //Database_Layout_Manager.addEntry()
     }
 
+
+    //finds all indexes of runway and taxiway and parses out the next string after. I need to somehow check that the next string afterwards is relevant.
+
     public void parseRunwayTaxiway(String s) {
         int num = s.indexOf("RWY");
         if(num != -1) {
@@ -527,9 +539,15 @@ public class Parser{
             while(s.charAt(digit) != ' ' && s.charAt(digit) != ',') {
                 digit += 1;
             }
-            runtax += " " + s.substring(num + 4, digit);
-            s = s.replace(s.substring(num + 4, digit), "");
+            if (digit - (num + 4) < 4 || Character.isDigit(s.charAt(num + 4))) {
+                runtax += " " + s.substring(num + 4, digit);
+                //s = s.replace(s.substring(num + 4, digit), "");
+                s = s.substring(0, num + 3) + s.substring(digit, s.length());
+                remainder = s;
+                //System.out.println(remainder);
+            }
             num = s.indexOf("RWY", num + 1);
+
         }
 
         num = s.indexOf("TWY");
@@ -548,11 +566,16 @@ public class Parser{
             while(s.charAt(digit) != ' ' && s.charAt(digit) != ',') {
                 digit += 1;
             }
-            runtax += " " + s.substring(num + 4, digit);
-            s = s.replace(s.substring(num + 4, digit), "");
+            if (digit - (num + 4) < 4) {
+                runtax += " " + s.substring(num + 4, digit);
+                s = s.substring(0, num + 3) + s.substring(digit, s.length());
+            }
             num = s.indexOf("TWY", num + 1);
         }
 
+        s = s.replace("RWY", "");
+        s = s.replace("TXY", "");
+        remainder = s;
         num = 0;
         while (num < this.type.length() && this.type.charAt(num) == ' ' ) {
             num++;
@@ -563,6 +586,8 @@ public class Parser{
             num++;
         }
         this.runtax = this.runtax.substring(num, this.runtax.length());
+
+        this.runtax = this.runtax.replace(')', ' ');
     }
 
 

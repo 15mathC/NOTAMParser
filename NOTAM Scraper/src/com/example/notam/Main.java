@@ -1,6 +1,8 @@
 package com.example.notam;
 import java.util.ArrayList;
 import java.util.LinkedList;
+
+import net.bytebuddy.dynamic.scaffold.MethodGraph;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -10,6 +12,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import java.util.Scanner;
 
 public class Main {
 
@@ -117,7 +120,7 @@ public class Main {
                 String notamtext = notam.text();
                 notamtext = notamtext.replace("\n", " ");
                 Parser p = new Parser(notamtext);
-                p.printNotam();
+                System.out.println(p.getAirport());
                 resultlist.add(notamtext);
                 i++;
             }
@@ -145,19 +148,34 @@ public class Main {
         //Establish Connection to Database
         myconnect.connect();
 
-
-        //Disconnect from Database
-        LinkedList<String> list = scraper_Chrome_dinsQueryWeb("KLAX",1);
-        while(!list.isEmpty()) {
+        while(true) {
+            String airport_code = "KATL";
+            Scanner sc = new Scanner(System.in);
+            System.out.println("Enter an airport code, or exit to stop");
+            airport_code = sc.nextLine();
+            if(airport_code.equals("exit")) {
+                System.exit(0);
+            }
+            LinkedList<String> list = null;
             try {
-                Parser p = new Parser(list.pop());
-                ((Database_Layout_Manager) myconnect).addEntry(p.getNotamNumber(), p.getAirport(), p.getType(), p.getCoords(), p.getAltitude(), p.getRunway(), p.getWhenInEffect(), p.getCreated(), p.getSource(), p.getRawNotam());
+                list = scraper_Chrome_dinsQueryWeb(airport_code, 1);
             } catch (Exception e) {
+                e.printStackTrace();
+                System.exit(0);
+            }
 
+
+            //Disconnect from Database
+            while (!list.isEmpty()) {
+                try {
+                    Parser p = new Parser(list.pop());
+                    ((Database_Layout_Manager) myconnect).addEntry(p.getNotamNumber(), p.getAirport(), p.getType(), p.getCoords(), p.getAltitude(), p.getRunway(), p.getWhenInEffect(), p.getCreated(), p.getSource(), p.getRawNotam());
+                } catch (Exception e) {
+
+                }
             }
         }
 
         //Parser p = new Parser(list.get(0));
         //p.printNotam();
-        myconnect.disconnect();
 }}
