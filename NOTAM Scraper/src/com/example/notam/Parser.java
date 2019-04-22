@@ -337,6 +337,11 @@ public class Parser{
         //because runway and taxiways are hard, I am going to do it in another method.
         parseRunwayTaxiway(s);
 
+        if(airport.equals("!FDC")) {
+            parseFDCType(s);
+            System.out.println(type);
+        }
+
 
 
     }
@@ -518,6 +523,80 @@ public class Parser{
     public void addEntry() {
         //Database_Layout_Manager.addEntry()
     }
+
+
+    public void parseFDCType(String s) {
+        if(s.contains(" CHART ")) {
+            s = s.replace(" CHART ", " ");
+            remainder = s;
+            if(this.type == "") {
+                this.type = "CHART";
+            } else {
+                this.type += " CHART";
+            }
+        }
+
+        if(s.contains(" DATA ")) {
+            s = s.replace(" DATA ", " ");
+            remainder = s;
+            if(this.type == "") {
+                this.type = "DATA";
+            } else {
+                this.type += " DATA";
+            }
+        }
+
+        if(s.contains(" IAP ")) {
+            s = s.replace(" IAP ", " ");
+            remainder = s;
+            if(this.type == "") {
+                this.type = "IAP";
+            } else {
+                this.type += " IAP";
+            }
+        }
+
+        if(s.contains(" VAP ")) {
+            s = s.replace(" VAP ", " ");
+            remainder = s;
+            if(this.type == "") {
+                this.type = "VAP";
+            } else {
+                this.type += " VAP";
+            }
+        }
+
+        if(s.contains(" ROUTE ")) {
+            s = s.replace(" ROUTE ", " ");
+            remainder = s;
+            if(this.type == "") {
+                this.type = "ROUTE";
+            } else {
+                this.type += " ROUTE";
+            }
+        }
+
+        if(s.contains(" SPECIAL ")) {
+            s = s.replace(" SPECIAL ", " ");
+            remainder = s;
+            if(this.type == "") {
+                this.type = "SPECIAL";
+            } else {
+                this.type += " SPECIAL";
+            }
+        }
+
+        if(s.contains(" SECURITY ")) {
+            s = s.replace(" SECURITY ", " ");
+            remainder = s;
+            if(this.type == "") {
+                this.type = "SECURITY";
+            } else {
+                this.type += " SECURITY";
+            }
+        }
+    }
+
 
 
     //finds all indexes of runway and taxiway and parses out the next string after. I need to somehow check that the next string afterwards is relevant.
